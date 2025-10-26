@@ -1,7 +1,3 @@
-"""
-jarvis_vs_code.py — Smarter Speech-to-Speech Jarvis for VS Code
-"""
-
 import os
 import json
 import time
@@ -16,31 +12,25 @@ from openai import OpenAI
 import re
 from datetime import datetime, timedelta
 
-# ----------------- CONFIGURATION -----------------
-# Set your OpenAI API key directly here
+
 OPENAI_API_KEY = "sk-...QEoA"
 PERSONAL_API_KEY = ""  # Optional
 PERSONAL_API_URL = ""  # Optional, like "https://your-api-url.com"
 
-# Initialize OpenAI client
 client = OpenAI(api_key=OPENAI_API_KEY)
 
-# TTS and STT settings
 TTS_RATE = 170
 PHRASE_TIME_LIMIT = 12
 AMBIENT_ADJUST_SECONDS = 1.5
 API_TIMEOUT = 8
 REMINDERS = []
 
-# Initialize recognizer and microphone
 recognizer = sr.Recognizer()
 microphone = sr.Microphone()
 
-# Initialize TTS engine
 tts_engine = pyttsx3.init()
 tts_engine.setProperty("rate", TTS_RATE)
 
-# ----------------- UTILITY FUNCTIONS -----------------
 def speak(text, block=True):
     if not text:
         return
@@ -84,7 +74,6 @@ def extract_intent(text: str) -> str:
         return "calculation"
     return "chat"
 
-# ----------------- PERSONAL API -----------------
 def call_personal_api(user_text: str) -> dict:
     if not PERSONAL_API_URL:
         return {"error": "Personal API URL not configured."}
@@ -102,7 +91,6 @@ def call_personal_api(user_text: str) -> dict:
     except Exception as e:
         return {"error": str(e)}
 
-# ----------------- NOTES -----------------
 def handle_note_intent(text: str) -> str:
     try:
         body = text.split(":", 1)[1].strip() if ":" in text else text
@@ -114,7 +102,6 @@ def handle_note_intent(text: str) -> str:
     except Exception as e:
         return f"Failed to save note: {e}"
 
-# ----------------- SYSTEM COMMANDS -----------------
 def run_system_command(command: str) -> str:
     try:
         cmd = command.lower()
@@ -138,7 +125,6 @@ def run_system_command(command: str) -> str:
     except Exception as e:
         return f"System command error: {e}"
 
-# ----------------- WEB COMMANDS -----------------
 def run_web_command(command: str) -> str:
     try:
         cmd = command.lower()
@@ -156,7 +142,6 @@ def run_web_command(command: str) -> str:
     except Exception as e:
         return f"Web command error: {e}"
 
-# ----------------- REMINDERS -----------------
 def parse_reminder(text: str):
     try:
         t = text.lower()
@@ -193,7 +178,6 @@ def check_reminders():
                 REMINDERS.remove(r)
         time.sleep(1)
 
-# ----------------- CALCULATIONS -----------------
 def run_calculation(command: str) -> str:
     try:
         expr = command.replace("calculate","").replace("what is","").replace("convert","").strip()
@@ -202,7 +186,6 @@ def run_calculation(command: str) -> str:
     except Exception as e:
         return f"Calculation error: {e}"
 
-# ----------------- PROCESS TEXT -----------------
 def process_text(user_text: str) -> str:
     if not user_text:
         return "I didn't catch that. Please repeat."
@@ -224,7 +207,6 @@ def process_text(user_text: str) -> str:
         return run_calculation(user_text)
     return llm_reply(user_text)
 
-# ----------------- SPEECH RECOGNITION -----------------
 def recognize_speech_from_mic(timeout=None, phrase_time_limit=PHRASE_TIME_LIMIT):
     response = {"success": True, "error": None, "transcription": None}
     try:
@@ -246,7 +228,6 @@ def recognize_speech_from_mic(timeout=None, phrase_time_limit=PHRASE_TIME_LIMIT)
         response["error"] = f"Microphone error: {e}"
     return response
 
-# ----------------- MAIN LOOP -----------------
 def main_loop():
     speak("Hello Sir, Jarvis online. How can I assist?")
     threading.Thread(target=check_reminders, daemon=True).start()
